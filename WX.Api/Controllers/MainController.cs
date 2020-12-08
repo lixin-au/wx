@@ -1,25 +1,44 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
+using System.Threading.Tasks;
+using WX.Api.Abstractions;
+using WX.Api.Models;
 
 namespace WX.Api.Controllers
 {
-    [Route("api")]
+    [Route("api/answers")]
     [ApiController]
     public class MainController : ControllerBase
     {
-        private readonly ILogger<MainController> _logger;
+        private readonly IResourceService _resourceService;
+        private readonly ISettings _settings;
 
-        public MainController(ILogger<MainController> logger)
+        public MainController(ISettings settings, IResourceService resourceService)
         {
-            _logger = logger;
+            _settings = settings;
+            _resourceService = resourceService;
+        }
+
+        [HttpPost]
+        [Route("trolleytotal")]
+        public IActionResult GetTrolleyTotal([FromBody] TrolleyRequest request)
+        {
+            var total = _resourceService.GetTrolleyTotal(request);
+            return Ok(total);
         }
 
         [HttpGet]
-        [Route("time")]
-        public IActionResult GetTime()
+        [Route("user")]
+        public IActionResult GetUser()
         {
-            return Ok($"Time = {DateTimeOffset.UtcNow}");
+            return Ok(new { _settings.Name, _settings.Token });
+        }
+
+        [HttpGet]
+        [Route("products")]
+        public async Task<IActionResult> ListProducts([FromQuery] SortOption sortOption)
+        {
+            var products = await _resourceService.ListProducts(sortOption);
+            return Ok(products);
         }
     }
 }

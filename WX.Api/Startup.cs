@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WX.Api.Abstractions;
+using WX.Api.Models;
+using WX.Api.Services;
 
 namespace WX.Api
 {
@@ -17,7 +20,15 @@ namespace WX.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddHttpClient();
+
+            services.AddSingleton<ISerializer, Serializer>();
+            services.AddSingleton<ISettings, Settings>();
+            services.AddSingleton<IResourceService, ResourceService>();
+
+            services.AddControllers()
+                .AddJsonOptions(options => 
+                    Serializer.SetJsonSerializerOptions(options.JsonSerializerOptions));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -27,11 +38,7 @@ namespace WX.Api
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
-
             app.UseRouting();
-
-            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
