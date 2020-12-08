@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -13,14 +14,19 @@ namespace WX.Api.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ISerializer _serializer;
+        private readonly ILogger<ResourceService> _logger;
 
         public ResourceService(
             IHttpClientFactory httpClientFactory,
-            ISerializer serializer
+            ISerializer serializer,
+            ILogger<ResourceService> logger
             )
         {
             _httpClientFactory = httpClientFactory;
             _serializer = serializer;
+            _logger = logger;
+
+            _logger.LogInformation($"{nameof(ResourceService)} started.");
         }
 
         public async Task<IEnumerable<Product>> ListProducts(SortOption sortOption)

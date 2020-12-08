@@ -29,6 +29,7 @@ namespace WX.Api
             services.AddControllers()
                 .AddJsonOptions(options => 
                     Serializer.SetJsonSerializerOptions(options.JsonSerializerOptions));
+            services.AddApplicationInsightsTelemetry();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
