@@ -19,7 +19,7 @@ namespace WX.Api.Controllers
         [Route("time")]
         public IActionResult GetTime()
         {
-            return Ok(DateTimeOffset.UtcNow);
+            return Ok($"Time = {DateTimeOffset.UtcNow}");
         }
     }
 }
