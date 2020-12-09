@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -13,19 +14,25 @@ namespace WX.Api.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ISerializer _serializer;
         private readonly ISettings _settings;
+        private readonly ILogger<ResourceService> _logger;
 
         public ResourceService(
             IHttpClientFactory httpClientFactory,
             ISerializer serializer,
-            ISettings settings)
+            ISettings settings,
+            ILogger<ResourceService> logger)
         {
             _httpClientFactory = httpClientFactory;
             _serializer = serializer;
             _settings = settings;
+            _logger = logger;
         }
 
         public decimal GetTrolleyTotal(TrolleyRequest request)
         {
+            _logger.LogInformation("=====================");
+            _logger.LogInformation(_serializer.Serialize(request));
+
             var productLookups = request.Products.ToDictionary(x => x.Name, x => x);
             var specialLookups = new Dictionary<string, Dictionary<decimal, decimal>>();
             foreach (var special in request.Specials)
@@ -54,6 +61,7 @@ namespace WX.Api.Services
                 if (specialLookups.TryGetValue(quantity.Name, out var specials))
                 {
                     var orderedSpecials = specials
+                        .Where(x => x.Key > 0)
                         .OrderBy(x => remainingItemCount % x.Key)
                         .ThenByDescending(x => x.Key);
                     foreach (var special in orderedSpecials)
