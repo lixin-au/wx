@@ -4,6 +4,7 @@
     {
         string Name { get; }
         string Token { get; }
-        string Url { get; }
+        string ProductsUri { get; }
+        string ShopperHistoryUri { get; }
     }
 }

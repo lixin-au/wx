@@ -12,8 +12,9 @@ namespace WX.Api.Models
             _configuration = configuration;
         }
 
-        public string Url => _configuration.GetSection(nameof(Url)).Get<string>();
         public string Name => _configuration.GetSection(nameof(Name)).Get<string>();
+        public string ProductsUri => _configuration.GetSection(nameof(ProductsUri)).Get<string>();
+        public string ShopperHistoryUri => _configuration.GetSection(nameof(ShopperHistoryUri)).Get<string>();
         public string Token => _configuration.GetSection(nameof(Token)).Get<string>();
     }
 }
