@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Linq;
+﻿using System.Linq;
 using WX.Api.Abstractions;
 using WX.Api.Models;
 
@@ -7,21 +6,16 @@ namespace WX.Api.Services
 {
     public class TrolleyCalculator : ITrolleyCalculator
     {
-        private readonly ILogger<TrolleyCalculator> _logger;
         private readonly ISerializer _serializer;
 
-        public TrolleyCalculator(ISerializer serializer, ILogger<TrolleyCalculator> logger)
+        public TrolleyCalculator(ISerializer serializer)
 
         {
             _serializer = serializer;
-            _logger = logger;
         }
 
         public decimal GetTrolleyTotal(TrolleyRequest request)
         {
-            _logger.LogInformation("=====================");
-            _logger.LogInformation(_serializer.Serialize(request));
-
             var productLookups = request.Products.ToDictionary(x => x.Name, x => x);
             var specials = request.Specials.OrderByDescending(x => x.Total);
             var trolleyItemLookups = request.Quantities.ToDictionary(x => x.Name, x => x);
@@ -64,11 +58,11 @@ namespace WX.Api.Services
                 }
             }
 
-            foreach (var item in trolleyItemLookups)
+            foreach (var itemEntry in trolleyItemLookups)
             {
-                if (productLookups.TryGetValue(item.Value.Name, out var product))
+                if (productLookups.TryGetValue(itemEntry.Value.Name, out var product))
                 {
-                    total += item.Value.Quantity * product.Price;
+                    total += itemEntry.Value.Quantity * product.Price;
                 }
             }
 
