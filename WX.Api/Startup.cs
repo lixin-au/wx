@@ -25,9 +25,10 @@ namespace WX.Api
             services.AddSingleton<ISerializer, Serializer>();
             services.AddSingleton<ISettings, Settings>();
             services.AddSingleton<IResourceService, ResourceService>();
+            services.AddSingleton<ITrolleyCalculator, TrolleyCalculator>();
 
             services.AddControllers()
-                .AddJsonOptions(options => 
+                .AddJsonOptions(options =>
                     Serializer.SetJsonSerializerOptions(options.JsonSerializerOptions));
             services.AddApplicationInsightsTelemetry();
         }

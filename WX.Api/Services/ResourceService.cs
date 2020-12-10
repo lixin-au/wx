@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -14,73 +13,15 @@ namespace WX.Api.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ISerializer _serializer;
         private readonly ISettings _settings;
-        private readonly ILogger<ResourceService> _logger;
 
         public ResourceService(
             IHttpClientFactory httpClientFactory,
             ISerializer serializer,
-            ISettings settings,
-            ILogger<ResourceService> logger)
+            ISettings settings)
         {
             _httpClientFactory = httpClientFactory;
             _serializer = serializer;
             _settings = settings;
-            _logger = logger;
-        }
-
-        public decimal GetTrolleyTotal(TrolleyRequest request)
-        {
-            _logger.LogInformation("=====================");
-            _logger.LogInformation(_serializer.Serialize(request));
-
-            var productLookups = request.Products.ToDictionary(x => x.Name, x => x);
-            var specialLookups = new Dictionary<string, Dictionary<decimal, decimal>>();
-            foreach (var special in request.Specials)
-            {
-                foreach (var quantityOnSpecial in special.Quantities)
-                {
-                    if (!specialLookups.TryGetValue(quantityOnSpecial.Name, out var quantityLookups))
-                    {
-                        quantityLookups = new Dictionary<decimal, decimal>();
-                        specialLookups.Add(quantityOnSpecial.Name, quantityLookups);
-                    }
-
-                    quantityLookups.Add(quantityOnSpecial.Quantity, special.Total);
-                }
-            }
-
-            var total = 0M;
-            foreach (var quantity in request.Quantities)
-            {
-                if (!productLookups.TryGetValue(quantity.Name, out var product))
-                {
-                    continue;
-                }
-
-                var remainingItemCount = quantity.Quantity;
-                if (specialLookups.TryGetValue(quantity.Name, out var specials))
-                {
-                    var orderedSpecials = specials
-                        .Where(x => x.Key > 0)
-                        .OrderBy(x => remainingItemCount % x.Key)
-                        .ThenByDescending(x => x.Key);
-                    foreach (var special in orderedSpecials)
-                    {
-                        if (remainingItemCount < special.Key)
-                        {
-                            continue;
-                        }
-
-                        var specialGroupCount = remainingItemCount / special.Key;
-
-                        total += specialGroupCount * special.Value;
-                        remainingItemCount -= specialGroupCount * special.Key;
-                    }
-                }
-
-                total += product.Price * remainingItemCount;
-            }
-            return total;
         }
 
         public async Task<IEnumerable<Product>> ListProducts(SortOption sortOption)
